@@ -50,11 +50,11 @@ int main(int argc, char* argv[]){
 	}
 
 	if(debug){
-		printf("Options checked successfully.\n");
+		printf("DEBUG: Options checked successfully.\n");
 	}
 	
-	printf("foo string: %s, int: %d, float: %f\n", foo_strval, foo_intval, foo_floatval);
-	printf("filedir: %s.\n", filedir);
-	printf("headerfile: %s.\n", headerfile);
+	printf("foo values -- string: \"%s\", int: %d, float: %f\n", foo_strval, foo_intval, foo_floatval);
+	printf("filedir: \"%s\"\n", filedir);
+	printf("headerfile: \"%s\"\n", headerfile);
 	return EXIT_SUCCESS;
 }
