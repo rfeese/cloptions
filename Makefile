@@ -10,9 +10,10 @@ clean:
 	- rm example
 	- rm bash-completion.sh
 
-bash-completion:
+bash-completion: example
 	echo "#/usr/bin/env bash" > bash-completion.sh
-	- ./example --bash-completion >> bash-completion.sh
+	./example --bash-completion >> bash-completion.sh
+	echo "Now, source bash-completion.sh."
 
 #buid and run tests
 test:
