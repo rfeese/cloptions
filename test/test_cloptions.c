@@ -81,7 +81,7 @@ void test_cloptions_add(){
 
 void test_cloptions_check(){
 	int argc = 0;
-	char *argv[] = { "test", "--option1", "8.1", "--option2", "--", "-notanoption" };
+	char *argv[] = { "test", "--option1", "8.1", "--nameless", "--", "-notanoption" };
 
 	argc = 2;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- undefined option.");
@@ -98,7 +98,7 @@ void test_cloptions_check(){
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "[namelessval]", "just a value", option2_callback), "adding nameless option should succeed.");
 	argc = 4;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv), "should have checked options successfully.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(1, option2_callback_called, "option2_callback should have been called.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, option2_callback_called, "option2_callback should have been called via --nameless.");
 
 	// if there is a "no more options" option "--"
 	argc = 6;
