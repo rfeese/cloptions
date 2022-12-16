@@ -12,7 +12,6 @@ struct s_cloption cloptions[CLOPTIONS_MAX] = {};
 char cloptions_arg_finder[CLOPTIONS_MAX][CLOPTION_ARG_FINDER_STR_MAX] = {{}};
 #define CLOPTIONS_ERROR_MSG_LEN	128
 char cloptions_error_msg[CLOPTIONS_ERROR_MSG_LEN] = {};
-int cloptions_unnamed_argval_found[CLOPTIONS_MAX] = {};
 
 int cloptions_add(const char *str, const char *argstr, const char *helpstr, cloption_callback callback){
 	// make sure the option hasn't already been added
@@ -23,6 +22,20 @@ int cloptions_add(const char *str, const char *argstr, const char *helpstr, clop
 			return 0;
 		}
 	}
+	// check for reserved options
+	if(str[0] && strncmp("-?", str, CLOPTION_STR_MAX) == 0){
+		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -? is reserved.");
+		return 0;
+	}
+	if(str[0] && strncmp("--help", str, CLOPTION_STR_MAX) == 0){
+		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option --help is reserved.");
+		return 0;
+	}
+	if(str[0] && strncmp("--", str, CLOPTION_STR_MAX) == 0){
+		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -- is reserved.");
+		return 0;
+	}
+	
 	if(cloptions_num < CLOPTIONS_MAX){
 		snprintf(cloptions[cloptions_num].str, CLOPTION_STR_MAX, "%s", str);
 		snprintf(cloptions[cloptions_num].argstr, CLOPTION_STR_MAX, "%s", argstr);
@@ -75,6 +88,9 @@ void cloptions_add_arg_finder(const char *str, const char *argstr, const char *f
 
 int cloptions_check(int argc, char *argv[]){
 	cloptions_error_msg[0] = '\0';
+	int cloptions_unnamed_argval_found[CLOPTIONS_MAX] = {};
+	int stop_looking_for_options = 0;
+
 	// start at 1 assuming that we can throw away argv[0]
 	for(int i = 1; i < argc; i++){
 		// common options
@@ -88,10 +104,16 @@ int cloptions_check(int argc, char *argv[]){
 			exit(EXIT_SUCCESS);
 		}
 
+		int option_matched = 0;
+		// if we see the special -- option that means stop looking for options
+		if(strncmp(argv[i], "--", CLOPTION_STR_MAX) == 0){
+			option_matched = 1;
+			stop_looking_for_options = 1;
+		}
+
 		// other options
 		// loop for named options
-		int option_matched = 0;
-		for(int j = 0; (j < cloptions_num) && !option_matched; j++){
+		for(int j = 0; (j < cloptions_num) && !option_matched && !stop_looking_for_options; j++){
 			char strargval[CLOPTION_VAL_STR_MAX] = {};
 			int intargval = 0;
 			float floatargval = 0.0f;
@@ -135,6 +157,7 @@ int cloptions_check(int argc, char *argv[]){
 				}
 			}
 		}
+
 		// loop for unnamed argument-only options
 		for(int j = 0; (j < cloptions_num) && !option_matched; j++){
 			char strargval[CLOPTION_VAL_STR_MAX] = {};
@@ -183,6 +206,7 @@ int cloptions_check(int argc, char *argv[]){
 	}
 	return 1;
 }
+
 char *cloptions_get_error(){
 	return cloptions_error_msg;
 }

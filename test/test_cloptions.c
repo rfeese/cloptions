@@ -24,6 +24,15 @@ void option3_callback(char *strval, int intval, float floatval){
 	option3_callback_called = 1;
 }
 
+int notanoption_callback_called = 0;
+void notanoption_callback(char *strval, int intval, float floatval){
+	notanoption_callback_called = 1;
+}
+
+int arg1_callback_called = 0;
+void arg1_callback(char *strval, int intval, float floatval){
+	arg1_callback_called = 1;
+}
 
 // runs before each test
 void setUp(void){
@@ -33,6 +42,8 @@ void setUp(void){
 	option1_callback_called = 0;
 	option2_callback_called = 0;
 	option3_callback_called = 0;
+	notanoption_callback_called = 0;
+	arg1_callback_called = 0;
 	cloptions_num = 0;
 }
 
@@ -58,18 +69,24 @@ void test_cloptions_add(){
 	TEST_ASSERT_EQUAL_INT_MESSAGE(3, cloptions_num, "number of options should be 3.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("", "[namelessval]", "just a value2", option1_callback), "adding duplicate nameless option should fail.");
 
+	// add reserved options should fail
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("-?", "", "", option1_callback), "adding reserved option -? should fail.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--help", "", "", option1_callback), "adding reserved option --help should fail.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--", "", "", option1_callback), "adding reserved option -- should fail.");
+
+	// max options
 	cloptions_num = CLOPTIONS_MAX;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--optionX", "optionX arg", "optionX help", option1_callback), "adding option should fail.");
 }
 
 void test_cloptions_check(){
 	int argc = 0;
-	char *argv[] = { "test", "--option1", "8.1", "--option2" };
+	char *argv[] = { "test", "--option1", "8.1", "--option2", "--", "-notanoption" };
 
 	argc = 2;
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- undefined option.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("--option1", "[option1 arg]", "option1 help", option1_callback), "adding option should succeed.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- missing option argument.");
 
 	argc = 3;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv), "should have checked options successfully.");
@@ -77,12 +94,20 @@ void test_cloptions_check(){
 	TEST_ASSERT_EQUAL_INT_MESSAGE(8, argintval, "option1 argument int val should have been 8.");
 	TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 8.1f, argfloatval, "option1 argument float val should have been 8.1");
 
-	// add nameless option	
+	// add nameless option / argument
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "[namelessval]", "just a value", option2_callback), "adding nameless option should succeed.");
 	argc = 4;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv), "should have checked options successfully.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, option2_callback_called, "option2_callback should have been called.");
-	}
+
+	// if there is a "no more options" option "--"
+	argc = 6;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("-notanoption", "", "not an option", notanoption_callback), "adding option should succeed.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "[arg1]", "arg1", arg1_callback), "adding option should succeed.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv), "should have checked options successfully.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, notanoption_callback_called, "should not have called notanoption_callback as it came after --.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, arg1_callback_called, "should have called arg1_callback.");
+}
 
 void test_cloptions_get_error(){
 	int argc = 1;
