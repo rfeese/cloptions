@@ -3,6 +3,13 @@
 #include "../../Unity/src/unity.h"
 #include "../src/cloptions.h"
 
+// substitute
+int printf_called = 0;
+int printf (const char *__restrict __format, ...){
+	printf_called = 1;
+	return 1;
+}
+
 char argstrval[32] = {};
 int argintval = 0;
 float argfloatval = 0.0f;
@@ -45,6 +52,7 @@ void setUp(void){
 	notanoption_callback_called = 0;
 	arg1_callback_called = 0;
 	cloptions_num = 0;
+	printf_called = 0;
 }
 
 //runs after each test
@@ -122,11 +130,15 @@ void test_cloptions_get_error(){
 }
 
 void test_cloptions_print_help(){
-	// nothing to test
+	char *argv[] = { "test" };
+	cloptions_print_help(argv[0]);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, printf_called, "printf should have been called.");
 }
 
 void test_cloptions_generate_bash_completion(){
-	// nothing to test
+	char *argv[] = { "test" };
+	cloptions_generate_bash_completion(argv[0]);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, printf_called, "printf should have been called.");
 }
 
 int main(){

@@ -13,7 +13,7 @@ all test:  test_cloptions
 
 # build a test
 test_cloptions: $(UNITY) test_cloptions.c ../src/cloptions.h ../src/cloptions.c
-	$(CC) $(CFLAGS) $(UNITY) test_cloptions.c ../src/cloptions.c -o test_cloptions
+	$(CC) $(CFLAGS) $(UNITY) -fno-builtin-printf test_cloptions.c ../src/cloptions.c -o test_cloptions
 
 # delete compiled binaries
 clean test_clean:
