@@ -19,6 +19,11 @@ void foo_callback(char *strval, int intval, float floatval){
 	foo_floatval = floatval;
 }
 
+char color[8] = {};
+void color_callback(char *strval, int intval, float floatval){
+	snprintf(color, 8, "%s", strval);
+}
+
 char filedir[32] = {};
 void filedir_callback(char *strval, int intval, float floatval){
 	snprintf(filedir, 32, "%s", strval);
@@ -35,6 +40,10 @@ int main(int argc, char* argv[]){
 
 	// option with argument
 	cloptions_add("--foo", "foovalue", "Foo value.", foo_callback);
+
+	// option with argument choices
+	cloptions_add("--color", "red | green | blue", "color value.", color_callback);
+	cloptions_add_arg_finder("--color", "red | green | blue", "echo \"red green blue\"");
 
 	// nameless positional argument using builtin _filedir finder
 	cloptions_add("", "[filedir]", "file or directory", filedir_callback);
@@ -53,7 +62,9 @@ int main(int argc, char* argv[]){
 		printf("DEBUG: Options checked successfully.\n");
 	}
 	
-	printf("foo values -- string: \"%s\", int: %d, float: %f\n", foo_strval, foo_intval, foo_floatval);
+	printf("\n");
+	printf("foo values: (string: \"%s\"; int: %d; float: %f;)\n", foo_strval, foo_intval, foo_floatval);
+	printf("color: \"%s\"\n", color);
 	printf("filedir: \"%s\"\n", filedir);
 	printf("headerfile: \"%s\"\n", headerfile);
 	return EXIT_SUCCESS;
