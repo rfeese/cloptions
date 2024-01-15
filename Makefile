@@ -1,12 +1,21 @@
+CC=$(CROSS)gcc
+PKG_CONFIG=$(CROSS)pkg-config
+CFLAGS=-g -Wall
+
+.PHONY: all clean install test test_clean bash_completion
+
 #binaries
 all: example
 
 example: example.c src/cloptions.o
 	$(CC) $(LDFLAGS) example.c src/cloptions.o $(LIBS) -o $@
 
+install:
+	make --directory src $@
+
 #delete compiled binaries
 clean:
-	- rm src/*.o
+	make --directory src $@
 	- rm example
 	- rm bash-completion.sh
 
@@ -22,4 +31,3 @@ test:
 test_clean:
 	$(MAKE) --directory test $@
 
-.PHONY: all clean test test_clean bash_completion

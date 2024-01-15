@@ -1,0 +1,5 @@
+example
+*.o
+*.a
+*.swp
+test/test_cloptions
