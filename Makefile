@@ -11,11 +11,11 @@ example: example.c src/cloptions.o
 	$(CC) $(LDFLAGS) example.c src/cloptions.o $(LIBS) -o $@
 
 install:
-	make --directory src $@
+	$(MAKE) --directory src $@
 
 #delete compiled binaries
 clean:
-	make --directory src $@
+	$(MAKE) --directory src $@
 	- rm example
 	- rm bash-completion.sh
 
