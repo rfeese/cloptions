@@ -51,7 +51,7 @@ void setUp(void){
 	option3_callback_called = 0;
 	notanoption_callback_called = 0;
 	arg1_callback_called = 0;
-	cloptions_num = 0;
+	cloptions.num = 0;
 	printf_called = 0;
 }
 
@@ -61,20 +61,20 @@ void tearDown(void){
 
 void test_cloptions_add(){
 	// add regular options
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_num, "number of options should default to zero.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions.num, "number of options should default to zero.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("--option1", "option1 arg", "option1 help", option1_callback), "adding option should succeed.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_num, "number of options should be 1.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("--option1", cloptions[0].str, CLOPTION_STR_MAX), "option str should have been copied.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("option1 arg", cloptions[0].argstr, CLOPTION_STR_MAX), "option argstr should have been copied.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("option1 help", cloptions[0].helpstr, CLOPTION_STR_MAX), "option helpstr should have been copied.");
-	TEST_ASSERT_EQUAL_PTR_MESSAGE(option1_callback, cloptions[0].callback, "option callback should have been set.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions.num, "number of options should be 1.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("--option1", cloptions.options[0].str, CLOPTION_STR_MAX), "option str should have been copied.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("option1 arg", cloptions.options[0].argstr, CLOPTION_STR_MAX), "option argstr should have been copied.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("option1 help", cloptions.options[0].helpstr, CLOPTION_STR_MAX), "option helpstr should have been copied.");
+	TEST_ASSERT_EQUAL_PTR_MESSAGE(option1_callback, cloptions.options[0].callback, "option callback should have been set.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--option1", "option1 arg", "option1 help", option1_callback), "adding duplicate option should fail.");
  
 	// add nameless options
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "[namelessval]", "just a value", option1_callback), "adding nameless option should succeed.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(2, cloptions_num, "number of options should be 2.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(2, cloptions.num, "number of options should be 2.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "[namelessval2]", "just a value2", option1_callback), "adding second nameless option should succeed.");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(3, cloptions_num, "number of options should be 3.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(3, cloptions.num, "number of options should be 3.");
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("", "[namelessval]", "just a value2", option1_callback), "adding duplicate nameless option should fail.");
 
 	// add reserved options should fail
@@ -83,7 +83,7 @@ void test_cloptions_add(){
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--", "", "", option1_callback), "adding reserved option -- should fail.");
 
 	// max options
-	cloptions_num = CLOPTIONS_MAX;
+	cloptions.num = CLOPTIONS_MAX;
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_add("--optionX", "optionX arg", "optionX help", option1_callback), "adding option should fail.");
 }
 

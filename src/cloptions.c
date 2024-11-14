@@ -19,42 +19,47 @@ struct s_cloption {
 };
 
 #define CLOPTIONS_MAX	24
-int cloptions_num = 0;
-struct s_cloption cloptions[CLOPTIONS_MAX] = {};
 #define CLOPTION_ARG_FINDER_STR_MAX 512
-char cloptions_arg_finder[CLOPTIONS_MAX][CLOPTION_ARG_FINDER_STR_MAX] = {{}};
 #define CLOPTIONS_ERROR_MSG_LEN	128
-char cloptions_error_msg[CLOPTIONS_ERROR_MSG_LEN] = {};
+
+struct cloptions {
+	int num;
+	struct s_cloption options[CLOPTIONS_MAX];
+	char arg_finder[CLOPTIONS_MAX][CLOPTION_ARG_FINDER_STR_MAX];
+	char error_msg[CLOPTIONS_ERROR_MSG_LEN];
+};
+
+struct cloptions cloptions = { .num = 0, .options = {}, .arg_finder = {{}}, .error_msg = {} };
 
 int cloptions_add(const char *str, const char *argstr, const char *helpstr, cloption_callback callback){
 	// make sure the option hasn't already been added
-	for(int i = 0; i < cloptions_num; i++){
-		if((str[0] && strncmp(cloptions[i].str, str, CLOPTION_STR_MAX) == 0) 
-				|| (argstr[0] && strncmp(cloptions[i].argstr, argstr, CLOPTION_STR_MAX) == 0)){
-			snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option already added: %s", str);
+	for(int i = 0; i < cloptions.num; i++){
+		if((str[0] && strncmp(cloptions.options[i].str, str, CLOPTION_STR_MAX) == 0) 
+				|| (argstr[0] && strncmp(cloptions.options[i].argstr, argstr, CLOPTION_STR_MAX) == 0)){
+			snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option already added: %s", str);
 			return 0;
 		}
 	}
 	// check for reserved options
 	if(str[0] && strncmp("-?", str, CLOPTION_STR_MAX) == 0){
-		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -? is reserved.");
+		snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -? is reserved.");
 		return 0;
 	}
 	if(str[0] && strncmp("--help", str, CLOPTION_STR_MAX) == 0){
-		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option --help is reserved.");
+		snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option --help is reserved.");
 		return 0;
 	}
 	if(str[0] && strncmp("--", str, CLOPTION_STR_MAX) == 0){
-		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -- is reserved.");
+		snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "Option -- is reserved.");
 		return 0;
 	}
 	
-	if(cloptions_num < CLOPTIONS_MAX){
-		snprintf(cloptions[cloptions_num].str, CLOPTION_STR_MAX, "%s", str);
-		snprintf(cloptions[cloptions_num].argstr, CLOPTION_STR_MAX, "%s", argstr);
-		snprintf(cloptions[cloptions_num].helpstr, CLOPTION_HELP_STR_MAX, "%s", helpstr);
-		cloptions[cloptions_num].callback = callback;
-		cloptions_num++;
+	if(cloptions.num < CLOPTIONS_MAX){
+		snprintf(cloptions.options[cloptions.num].str, CLOPTION_STR_MAX, "%s", str);
+		snprintf(cloptions.options[cloptions.num].argstr, CLOPTION_STR_MAX, "%s", argstr);
+		snprintf(cloptions.options[cloptions.num].helpstr, CLOPTION_HELP_STR_MAX, "%s", helpstr);
+		cloptions.options[cloptions.num].callback = callback;
+		cloptions.num++;
 		return 1;
 	}
 	return 0;
@@ -64,13 +69,13 @@ void cloptions_add_arg_finder(const char *str, const char *argstr, const char *f
 	// add to finders, if it is new
 	int finder_idx = -1;
 	for(int i = 0; (i < CLOPTIONS_MAX) && (finder_idx < 0); i++){
-		if(strnlen(cloptions_arg_finder[i], CLOPTION_STR_MAX) == 0){
+		if(strnlen(cloptions.arg_finder[i], CLOPTION_STR_MAX) == 0){
 			// nothing there, insert it
-			snprintf(cloptions_arg_finder[i], CLOPTION_ARG_FINDER_STR_MAX, "%s", finder);
+			snprintf(cloptions.arg_finder[i], CLOPTION_ARG_FINDER_STR_MAX, "%s", finder);
 			finder_idx = i;
 		}
 		else {
-			if(strncmp(cloptions_arg_finder[i], finder, CLOPTION_ARG_FINDER_STR_MAX) == 0){
+			if(strncmp(cloptions.arg_finder[i], finder, CLOPTION_ARG_FINDER_STR_MAX) == 0){
 				// matches existing finder
 				finder_idx = i;
 			}
@@ -84,23 +89,23 @@ void cloptions_add_arg_finder(const char *str, const char *argstr, const char *f
 
 	// find option by str or argstr
 	if(strnlen(str, CLOPTION_STR_MAX) > 0){
-		for(int i = 0; i < cloptions_num; i++){
-			if(strncmp(cloptions[i].str, str, CLOPTION_STR_MAX) == 0){
-				cloptions[i].arg_finder_str = cloptions_arg_finder[finder_idx];
+		for(int i = 0; i < cloptions.num; i++){
+			if(strncmp(cloptions.options[i].str, str, CLOPTION_STR_MAX) == 0){
+				cloptions.options[i].arg_finder_str = cloptions.arg_finder[finder_idx];
 			}
 		}
 	}
 	if(strnlen(argstr, CLOPTION_STR_MAX) > 0){
-		for(int i = 0; i < cloptions_num; i++){
-			if(strncmp(cloptions[i].argstr, argstr, CLOPTION_STR_MAX) == 0){
-				cloptions[i].arg_finder_str = cloptions_arg_finder[finder_idx];
+		for(int i = 0; i < cloptions.num; i++){
+			if(strncmp(cloptions.options[i].argstr, argstr, CLOPTION_STR_MAX) == 0){
+				cloptions.options[i].arg_finder_str = cloptions.arg_finder[finder_idx];
 			}
 		}
 	}
 }
 
 int cloptions_check(int argc, char *argv[]){
-	cloptions_error_msg[0] = '\0';
+	cloptions.error_msg[0] = '\0';
 	int cloptions_unnamed_argval_found[CLOPTIONS_MAX] = {};
 	int stop_looking_for_options = 0;
 
@@ -126,19 +131,19 @@ int cloptions_check(int argc, char *argv[]){
 
 		// other options
 		// loop for named options
-		for(int j = 0; (j < cloptions_num) && !option_matched && !stop_looking_for_options; j++){
+		for(int j = 0; (j < cloptions.num) && !option_matched && !stop_looking_for_options; j++){
 			char strargval[CLOPTION_VAL_STR_MAX] = {};
 			int intargval = 0;
 			float floatargval = 0.0f;
 
-			if(strnlen(cloptions[j].str, CLOPTION_STR_MAX) > 0){
-				if((strncmp(argv[i], cloptions[j].str, CLOPTION_STR_MAX) == 0)){
+			if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) > 0){
+				if((strncmp(argv[i], cloptions.options[j].str, CLOPTION_STR_MAX) == 0)){
 					option_matched = 1;
 					// if option takes a parameter, read it
-					if(strnlen(cloptions[j].argstr, CLOPTION_STR_MAX) > 0){
+					if(strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) > 0){
 						// make sure there is another argv ...
 						if(argc < i + 2){
-							snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "%s%s %s", "Missing argument for option: ", cloptions[j].str, cloptions[j].argstr);
+							snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "%s%s %s", "Missing argument for option: ", cloptions.options[j].str, cloptions.options[j].argstr);
 							return 0;
 						}
 
@@ -164,20 +169,20 @@ int cloptions_check(int argc, char *argv[]){
 						i++;
 					}
 					// call option callback
-					if(cloptions[j].callback){
-						cloptions[j].callback(strargval, intargval, floatargval);
+					if(cloptions.options[j].callback){
+						cloptions.options[j].callback(strargval, intargval, floatargval);
 					}
 				}
 			}
 		}
 
 		// loop for unnamed argument-only options
-		for(int j = 0; (j < cloptions_num) && !option_matched; j++){
+		for(int j = 0; (j < cloptions.num) && !option_matched; j++){
 			char strargval[CLOPTION_VAL_STR_MAX] = {};
 			int intargval = 0;
 			float floatargval = 0.0f;
 
-			if(strnlen(cloptions[j].str, CLOPTION_STR_MAX) == 0){
+			if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) == 0){
 				// find them, in order
 				if(cloptions_unnamed_argval_found[j]){
 					continue;
@@ -204,8 +209,8 @@ int cloptions_check(int argc, char *argv[]){
 					// if we are checking argument types, we could do more here
 				}
 
-				if(cloptions[j].callback){
-					cloptions[j].callback(strargval, intargval, floatargval);
+				if(cloptions.options[j].callback){
+					cloptions.options[j].callback(strargval, intargval, floatargval);
 				}
 			}
 		}
@@ -214,30 +219,30 @@ int cloptions_check(int argc, char *argv[]){
 			continue;
 		}
 		// option not consumed -- invalid option
-		snprintf(cloptions_error_msg, CLOPTIONS_ERROR_MSG_LEN, "%s%s", "Unrecognized option: ", argv[i]);
+		snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "%s%s", "Unrecognized option: ", argv[i]);
 		return 0;
 	}
 	return 1;
 }
 
 char *cloptions_get_error(){
-	return cloptions_error_msg;
+	return cloptions.error_msg;
 }
 
 void cloptions_print_help(char *argv0){
 	//find longest option name
 	int optlength = 0;
-	for(int j = 0; j < cloptions_num; j++){
-		if((strnlen(cloptions[j].str, CLOPTION_STR_MAX) + strnlen(cloptions[j].argstr, CLOPTION_STR_MAX) + 1)  > optlength){
-			optlength = strnlen(cloptions[j].str, CLOPTION_STR_MAX) + strnlen(cloptions[j].argstr, CLOPTION_STR_MAX) + 1;
+	for(int j = 0; j < cloptions.num; j++){
+		if((strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1)  > optlength){
+			optlength = strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1;
 		}
 	}
 
 	char unnamed_options_str[128] = {};
-	for(int j = 0; j < cloptions_num; j++){
-		if(strnlen(cloptions[j].str, CLOPTION_STR_MAX) == 0){
+	for(int j = 0; j < cloptions.num; j++){
+		if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) == 0){
 			strncat(unnamed_options_str, " ", 128 - 1);
-			strncat(unnamed_options_str, cloptions[j].argstr, 128 - 1);
+			strncat(unnamed_options_str, cloptions.options[j].argstr, 128 - 1);
 		}
 	}
 	printf("\nUsage: %s [OPTIONS]%s\n\n", argv0, unnamed_options_str);
@@ -248,14 +253,14 @@ void cloptions_print_help(char *argv0){
 		strncat(helpline, " ", 128 - 1);
 	}
 	printf("  %s\t%s\n", helpline, "Show this help.");
-	for(int j = 0; j < cloptions_num; j++){
-		if(strnlen(cloptions[j].str, CLOPTION_STR_MAX) > 0){
-			snprintf(helpline, 128, "%s %s", cloptions[j].str, cloptions[j].argstr);
+	for(int j = 0; j < cloptions.num; j++){
+		if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) > 0){
+			snprintf(helpline, 128, "%s %s", cloptions.options[j].str, cloptions.options[j].argstr);
 			int myoptlength =  strnlen(helpline, 128);
 			for(int k = 0; k < optlength - myoptlength; k++){
 				strncat(helpline, " ", 128 - 1);
 			}
-			printf("  %s\t%s\n", helpline, cloptions[j].helpstr);
+			printf("  %s\t%s\n", helpline, cloptions.options[j].helpstr);
 		}
 	}
 	printf("\n");
@@ -284,11 +289,11 @@ void cloptions_generate_bash_completion(char *argv0){
 	// functions to help find values for option args
 	for(int i = 0; i < CLOPTIONS_MAX; i++){
 		// don't create finders for builtins (eg _filedir), assume they start with underscore
-		if(strnlen(cloptions_arg_finder[i], CLOPTION_ARG_FINDER_STR_MAX) > 0
-				&& cloptions_arg_finder[i][0] != '_'){
+		if(strnlen(cloptions.arg_finder[i], CLOPTION_ARG_FINDER_STR_MAX) > 0
+				&& cloptions.arg_finder[i][0] != '_'){
 			printf("_%s_finder_%d(){\n", myname, i);
 			printf("\tlocal foundstuff\n");
-			printf("\tfoundstuff=$( %s )\n", cloptions_arg_finder[i]);
+			printf("\tfoundstuff=$( %s )\n", cloptions.arg_finder[i]);
 			printf("\tCOMPREPLY=( $(compgen -W \"$foundstuff\" -- \"$cur\" ) )\n");
 			printf("}\n");
 		}
@@ -298,19 +303,19 @@ void cloptions_generate_bash_completion(char *argv0){
 	// start check_args
 	printf("_%s_opt_args(){\n", myname);
 	printf("\tcase $prev in\n");
-	for(int i = 0; i < cloptions_num; i++){
+	for(int i = 0; i < cloptions.num; i++){
 		// options that take an argument
-		if((strnlen(cloptions[i].str, CLOPTION_STR_MAX) > 0) && (cloptions[i].str[0] == '-') && (strnlen(cloptions[i].argstr, CLOPTION_STR_MAX) > 0)){
-			printf("\t\t%s)\n", cloptions[i].str);
-			if(cloptions[i].arg_finder_str){
+		if((strnlen(cloptions.options[i].str, CLOPTION_STR_MAX) > 0) && (cloptions.options[i].str[0] == '-') && (strnlen(cloptions.options[i].argstr, CLOPTION_STR_MAX) > 0)){
+			printf("\t\t%s)\n", cloptions.options[i].str);
+			if(cloptions.options[i].arg_finder_str){
 				// call builtins directly (eg _filedir), assume they start with underscore
-				if(cloptions[i].arg_finder_str[0] == '_'){
-					printf("\t\t\t%s\n", cloptions_arg_finder[i]);
+				if(cloptions.options[i].arg_finder_str[0] == '_'){
+					printf("\t\t\t%s\n", cloptions.arg_finder[i]);
 				}
 				else{
 					int finder_num = -1;
 					for(int j = 0; j < CLOPTIONS_MAX; j++){
-						if(cloptions[i].arg_finder_str == cloptions_arg_finder[j]){
+						if(cloptions.options[i].arg_finder_str == cloptions.arg_finder[j]){
 							finder_num = j;
 						}
 					}
@@ -336,13 +341,13 @@ void cloptions_generate_bash_completion(char *argv0){
 	char options_str[512] = " -? --help";
 	// options that take arguments glob
 	char options_with_args_glob[512] = "@(";
-	for(int i = 0; i < cloptions_num; i++){
+	for(int i = 0; i < cloptions.num; i++){
 		// normal options start with a dash
-		if((strnlen(cloptions[i].str, CLOPTION_STR_MAX) > 0) && (cloptions[i].str[0] == '-')){
+		if((strnlen(cloptions.options[i].str, CLOPTION_STR_MAX) > 0) && (cloptions.options[i].str[0] == '-')){
 			strncat(options_str, " ", 512 - 1);
-			strncat(options_str, cloptions[i].str, 512 - 1);
-			if(cloptions[i].argstr){
-				strncat(options_with_args_glob, cloptions[i].str, 512 - 1);
+			strncat(options_str, cloptions.options[i].str, 512 - 1);
+			if(cloptions.options[i].argstr){
+				strncat(options_with_args_glob, cloptions.options[i].str, 512 - 1);
 				strncat(options_with_args_glob, "|", 512 - 1);
 			}
 		}
@@ -377,26 +382,26 @@ void cloptions_generate_bash_completion(char *argv0){
 	// unnamed options
 	printf("\t_%s_count_args\n", myname);
 	int unnamed_opt_num = 0;
-	for(int i = 0; i < cloptions_num; i++){
-		if((strnlen(cloptions[i].str, CLOPTION_STR_MAX) == 0) && (strnlen(cloptions[i].argstr, CLOPTION_STR_MAX) > 0)){
+	for(int i = 0; i < cloptions.num; i++){
+		if((strnlen(cloptions.options[i].str, CLOPTION_STR_MAX) == 0) && (strnlen(cloptions.options[i].argstr, CLOPTION_STR_MAX) > 0)){
 			unnamed_opt_num++;
 		}
 		else{
 			continue;
 		}
 
-		if(cloptions[i].arg_finder_str){
+		if(cloptions.options[i].arg_finder_str){
 			int finder_num = -1;
 			for(int j = 0; j < CLOPTIONS_MAX; j++){
-				if(cloptions[i].arg_finder_str == cloptions_arg_finder[j]){
+				if(cloptions.options[i].arg_finder_str == cloptions.arg_finder[j]){
 					finder_num = j;
 				}
 			}
 			if(finder_num >= 0){
 				printf("\tif [[ $args -eq %d ]]; then\n", unnamed_opt_num);
 				// call builtins directly (eg _filedir), assume they start with underscore
-				if(cloptions[i].arg_finder_str[0] == '_'){
-					printf("\t\t%s\n", cloptions[i].arg_finder_str);
+				if(cloptions.options[i].arg_finder_str[0] == '_'){
+					printf("\t\t%s\n", cloptions.options[i].arg_finder_str);
 				}
 				else {
 					printf("\t\t_%s_finder_%d\n", myname, finder_num);
