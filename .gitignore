@@ -3,3 +3,4 @@ example
 *.a
 *.swp
 test/test_cloptions
+test/test_cloptions_internal

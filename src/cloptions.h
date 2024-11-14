@@ -3,22 +3,11 @@
  */
 #ifndef CLOPTIONS_H
 #define CLOPTIONS_H
-
-#define CLOPTION_STR_MAX	32
-#define CLOPTION_HELP_STR_MAX	128
-#define CLOPTION_VAL_STR_MAX	64
+/**
+ * Prototype for an option callback.
+ * Accepts values for different argument types, even though only one may actually be used.
+ */
 typedef void (*cloption_callback)(char *strval, int intval, float floatval);
-struct s_cloption {
-	char str[CLOPTION_STR_MAX];       // --str
-	char argstr[CLOPTION_STR_MAX];  // --str [argstr]
-	char helpstr[CLOPTION_HELP_STR_MAX];
-	cloption_callback callback;
-	char *arg_finder_str;
-};
-
-#define CLOPTIONS_MAX	24
-extern int cloptions_num;
-extern struct s_cloption cloptions[CLOPTIONS_MAX];
 
 /**
  * Define a command-line option or argument. Adds a "flag" type option, option with argument, 

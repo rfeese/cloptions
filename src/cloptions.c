@@ -6,6 +6,19 @@
 #include <stdlib.h>
 #include "cloptions.h"
 
+#define CLOPTION_STR_MAX	32
+#define CLOPTION_HELP_STR_MAX	128
+#define CLOPTION_VAL_STR_MAX	64
+
+struct s_cloption {
+	char str[CLOPTION_STR_MAX];       // --str
+	char argstr[CLOPTION_STR_MAX];  // --str [argstr]
+	char helpstr[CLOPTION_HELP_STR_MAX];
+	cloption_callback callback;
+	char *arg_finder_str;
+};
+
+#define CLOPTIONS_MAX	24
 int cloptions_num = 0;
 struct s_cloption cloptions[CLOPTIONS_MAX] = {};
 #define CLOPTION_ARG_FINDER_STR_MAX 512

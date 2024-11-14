@@ -28,6 +28,9 @@ bash-completion: example
 test:
 	$(MAKE) --directory test $@
 
+test_internal:
+	$(MAKE) --directory test $@
+
 test_clean:
 	$(MAKE) --directory test $@
 
