@@ -20,10 +20,56 @@ struct s_cloption {
 extern int cloptions_num;
 extern struct s_cloption cloptions[CLOPTIONS_MAX];
 
+/**
+ * Define a command-line option or argument. Adds a "flag" type option, option with argument, 
+ * or positional argument depending on the values provided for the first two parameters.
+ *
+ * \param str Option string (e.g. "--option", "-o")
+ * \param argstr Argument string: The name for a user-provided value.
+ * \param help Help string.
+ * \param callback Callback function pointer.
+ * \return 1 if option was added successfully.
+ */
 int cloptions_add(const char *str, const char *argstr, const char *helpstr, cloption_callback callback);
+
+/**
+ * Add a shell command that can be used for tab-expansion on the provided parameter.
+ * Depending on option type, either of the first two identifiers can be used.
+ *
+ * \param str Option string that identifies a previously-defined option.
+ * \param argstr Argument string that identifies a previously-defined option arument.
+ * \param finder Shell command string used to get possible values for shell tab expansion.
+ */
 void cloptions_add_arg_finder(const char *str, const char *argstr, const char *finder);
+
+/**
+ * Verify and process program arugments per the defined options.
+ * As each option is checked, callback functions are called.
+ *
+ * \param argc Argument count from main()
+ * \param argv Argument array from main()
+ * \return 1 if user arguments are compliant.
+ */
 int cloptions_check(int argc, char *argv[]); // check common and any additional command-line options
+
+/**
+ * Get message for the most recent error
+ *
+ * \return Error string.
+ */
 char *cloptions_get_error();
+
+/**
+ * Print a help/usage text based on the options configuration on STDOUT.
+ *
+ * \param argv0 The name of the executable
+ */
 void cloptions_print_help(char *argv0);
+
+/**
+ * Print a bash completion script based on the defined options and finders on STDOUT.
+ *
+ * \param argv0 The name of the executable
+ */
 void cloptions_generate_bash_completion(char *argv0);
 #endif //CLOPTIONS_H
