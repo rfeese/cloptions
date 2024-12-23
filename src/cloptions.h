@@ -12,6 +12,11 @@ typedef void (*cloption_callback)(char *strval, int intval, float floatval);
 /**
  * Define a command-line option or argument. Adds a "flag" type option, option with argument, 
  * or positional argument depending on the values provided for the first two parameters.
+ * Options will be handled first, followed by arguments in the order added.
+ *
+ * Flag-type option:		("--myflag", "", "Enable myflag.", myflag_callback)
+ * Option with argument:	("--myoption", "myoptarg", "Do myoption with arg.", myoption_callback)
+ * Positional argument:		("", "myarg", "Use arg.", myarg_callback)
  *
  * \param str Option string (e.g. "--option", "-o")
  * \param argstr Argument string: The name for a user-provided value.
@@ -22,8 +27,13 @@ typedef void (*cloption_callback)(char *strval, int intval, float floatval);
 int cloptions_add(const char *str, const char *argstr, const char *helpstr, cloption_callback callback);
 
 /**
- * Add a shell command that can be used for tab-expansion on the provided parameter.
- * Depending on option type, either of the first two identifiers can be used.
+ * Add a shell command that can be used for tab-expansion on the option argument string.
+ * The shell command should evaluate to a list of words separated by spaces.
+ *
+ * Example - a list of words: 				"echo \" red green blue \""
+ * Example - files or directories: 			"_filedir"
+ * Example - directories only: 				"_filedir -d"
+ * Example - files matching extension (*.c, *.h): 	"_filedir '@(c|h)'"
  *
  * \param str Option string that identifies a previously-defined option.
  * \param argstr Argument string that identifies a previously-defined option arument.
