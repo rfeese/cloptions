@@ -6,32 +6,37 @@
 #include "src/cloptions.h"
 
 int debug = 0;
-void debug_callback(char *strval, int intval, float floatval){
+int debug_callback(char *strval, int intval, float floatval){
 	debug = 1;
+	return 1;
 }
 
 char foo_strval[32] = {};
 int foo_intval = 0;
 float foo_floatval = 0.0f;
-void foo_callback(char *strval, int intval, float floatval){
+int foo_callback(char *strval, int intval, float floatval){
 	snprintf(foo_strval, 32, "%s", strval);
 	foo_intval = intval;
 	foo_floatval = floatval;
+	return 1;
 }
 
 char color[8] = {};
-void color_callback(char *strval, int intval, float floatval){
+int color_callback(char *strval, int intval, float floatval){
 	snprintf(color, 8, "%s", strval);
+	return 1;
 }
 
 char filedir[32] = {};
-void filedir_callback(char *strval, int intval, float floatval){
+int filedir_callback(char *strval, int intval, float floatval){
 	snprintf(filedir, 32, "%s", strval);
+	return 1;
 }
 
 char headerfile[32] = {};
-void headerfile_callback(char *strval, int intval, float floatval){
+int headerfile_callback(char *strval, int intval, float floatval){
 	snprintf(headerfile, 32, "%s", strval);
+	return 1;
 }
 
 int main(int argc, char* argv[]){
