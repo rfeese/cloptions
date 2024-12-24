@@ -170,7 +170,9 @@ int cloptions_check(int argc, char *argv[]){
 					}
 					// call option callback
 					if(cloptions.options[j].callback){
-						cloptions.options[j].callback(strargval, intargval, floatargval);
+						if(!cloptions.options[j].callback(strargval, intargval, floatargval)){
+							return 0;
+						}
 					}
 				}
 			}
@@ -210,7 +212,9 @@ int cloptions_check(int argc, char *argv[]){
 				}
 
 				if(cloptions.options[j].callback){
-					cloptions.options[j].callback(strargval, intargval, floatargval);
+					if(!cloptions.options[j].callback(strargval, intargval, floatargval)){
+						return 0;
+					}
 				}
 			}
 		}
@@ -416,3 +420,8 @@ void cloptions_generate_bash_completion(char *argv0){
 	printf("} &&\n");
 	printf("complete -F _%s_complete %s\n", myname, argv0);
 }
+
+void cloptions_reset(){
+	cloptions.num = 0;
+}
+

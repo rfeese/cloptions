@@ -14,31 +14,36 @@ char argstrval[32] = {};
 int argintval = 0;
 float argfloatval = 0.0f;
 int option1_callback_called = 0;
-void option1_callback(char *strval, int intval, float floatval){
+int option1_callback(char *strval, int intval, float floatval){
 	option1_callback_called = 1;
 	snprintf(argstrval, 32, "%s", strval);
 	argintval = intval;
 	argfloatval = floatval;
+	return 1;
 }
 
 int option2_callback_called = 0;
-void option2_callback(char *strval, int intval, float floatval){
+int option2_callback(char *strval, int intval, float floatval){
 	option2_callback_called = 1;
+	return 1;
 }
 
 int option3_callback_called = 0;
-void option3_callback(char *strval, int intval, float floatval){
+int option3_callback(char *strval, int intval, float floatval){
 	option3_callback_called = 1;
+	return 1;
 }
 
 int notanoption_callback_called = 0;
-void notanoption_callback(char *strval, int intval, float floatval){
+int notanoption_callback(char *strval, int intval, float floatval){
 	notanoption_callback_called = 1;
+	return 1;
 }
 
 int arg1_callback_called = 0;
-void arg1_callback(char *strval, int intval, float floatval){
+int arg1_callback(char *strval, int intval, float floatval){
 	arg1_callback_called = 1;
+	return 1;
 }
 
 // runs before each test

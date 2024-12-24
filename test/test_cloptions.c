@@ -17,17 +17,37 @@ void setUp(void){
 
 //runs after each test
 void tearDown(void){
+	cloptions_reset();
 }
 
 char argstrval[32] = {};
 int argintval = 0;
 float argfloatval = 0.0f;
 int option1_callback_called = 0;
-void option1_callback(char *strval, int intval, float floatval){
+int option1_callback(char *strval, int intval, float floatval){
 	option1_callback_called = 1;
 	snprintf(argstrval, 32, "%s", strval);
 	argintval = intval;
 	argfloatval = floatval;
+	return 1;
+}
+
+int option2_callback_fails_called = 0;
+int option2_callback_fails(char *strval, int intval, float floatval){
+	option2_callback_fails_called = 1;
+	snprintf(argstrval, 32, "%s", strval);
+	argintval = intval;
+	argfloatval = floatval;
+	return 0;
+}
+
+int arg1_callback_called = 0;
+int arg1_callback(char *strval, int intval, float floatval){
+	arg1_callback_called = 1;
+	snprintf(argstrval, 32, "%s", strval);
+	argintval = intval;
+	argfloatval = floatval;
+	return 1;
 }
 
 void test_cloptions_add(){
@@ -35,9 +55,26 @@ void test_cloptions_add(){
 }
 
 void test_cloptions_check(){
-	int argc = 6;
-	char *argv[] = { "test", "--option1", "8.1", "--nameless", "--", "-notanoption" };
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- undefined option.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("--option1", "option1 arg", "option1 help", option1_callback), "adding option should succeed.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("--option2", "option2 arg", "option2 help", option2_callback_fails), "adding option should succeed.");
+
+	char *argv[] = { "test", "--option1", "8.1", "--option2", "1" };
+	int argc = 2;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- option1 missing argval.");
+	argc = 3;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv), "should have checked options successfully.");
+	argc = 5;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv), "should NOT have checked options successfully -- option2 callback fails.");
+	char *argv2[] = { "test", "--option1", "1", "--nameless" };
+	argc = 4;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv2), "should NOT have checked options successfully -- undefined option used.");
+	char *argv3[] = { "test", "--option1", "1", "--", "-notanoption", "extraarg" };
+	argc = 5;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv3), "should NOT have checked options successfully -- extra argument after -- .");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_add("", "arg1", "arg1 help", option1_callback), "adding option should succeed.");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, cloptions_check(argc, argv3), "should have checked options successfully -- argument after --.");
+	argc = 6;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, cloptions_check(argc, argv3), "should NOT have checked options successfully -- extra argument.");
 }
 
 void test_cloptions_get_error(){

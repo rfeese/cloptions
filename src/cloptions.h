@@ -6,8 +6,10 @@
 /**
  * Prototype for an option callback.
  * Accepts values for different argument types, even though only one may actually be used.
+ *
+ * \return 1 if option was added successfully.
  */
-typedef void (*cloption_callback)(char *strval, int intval, float floatval);
+typedef int (*cloption_callback)(char *strval, int intval, float floatval);
 
 /**
  * Define a command-line option or argument. Adds a "flag" type option, option with argument, 
@@ -71,4 +73,9 @@ void cloptions_print_help(char *argv0);
  * \param argv0 The name of the executable
  */
 void cloptions_generate_bash_completion(char *argv0);
+
+/**
+ * Reset options module
+ */ 
+void cloptions_reset();
 #endif //CLOPTIONS_H
