@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Roger Feese
+ * Copyright 2024 Roger Feese
  */
 #ifndef CLOPTIONS_H
 #define CLOPTIONS_H
