@@ -3,6 +3,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "src/cloptions.h"
 
 int debug = 0;
@@ -24,12 +25,28 @@ int foo_callback(char *strval, int intval, float floatval){
 char color[8] = {};
 int color_callback(char *strval, int intval, float floatval){
 	snprintf(color, 8, "%s", strval);
+	if(!((strncmp(color, "red", 8) == 0)
+		|| (strncmp(color, "blue", 8) == 0)
+		|| (strncmp(color, "green", 8) == 0))){
+		return 0;
+	}
 	return 1;
 }
 
-char filedir[32] = {};
-int filedir_callback(char *strval, int intval, float floatval){
-	snprintf(filedir, 32, "%s", strval);
+char myfile[32] = {};
+int myfile_callback(char *strval, int intval, float floatval){
+	snprintf(myfile, 32, "%s", strval);
+
+	// check the file
+	FILE *testfile = fopen(myfile, "r");
+	if(!testfile){
+		// provide a specific error message.
+		cloptions_set_error("The specified file cannot be opened.");
+		return 0;
+	}
+	else{
+		fclose(testfile);
+	}
 	return 1;
 }
 
@@ -46,13 +63,13 @@ int main(int argc, char* argv[]){
 	// option with argument
 	cloptions_add("--foo", "foovalue", "Foo value.", foo_callback);
 
-	// option with argument choices
-	cloptions_add("--color", "red | green | blue", "color value.", color_callback);
-	cloptions_add_arg_finder("--color", "red | green | blue", "echo \"red green blue\"");
+	// option with argument choices using custom finder
+	cloptions_add("--color", "( red | green | blue )", "color value.", color_callback);
+	cloptions_add_arg_finder("--color", "( red | green | blue )", "echo \"red green blue\"");
 
 	// nameless positional argument using builtin _filedir finder
-	cloptions_add("", "[filedir]", "file or directory", filedir_callback);
-	cloptions_add_arg_finder("", "[filedir]", "_filedir");
+	cloptions_add("", "[file]", "File to process.", myfile_callback);
+	cloptions_add_arg_finder("", "[file]", "_filedir");
 
 	// nameless positional argument using custom finder
 	cloptions_add("", "[headerfile]", "Header file", headerfile_callback);
@@ -70,7 +87,7 @@ int main(int argc, char* argv[]){
 	printf("\n");
 	printf("foo values: (string: \"%s\"; int: %d; float: %f;)\n", foo_strval, foo_intval, foo_floatval);
 	printf("color: \"%s\"\n", color);
-	printf("filedir: \"%s\"\n", filedir);
+	printf("file: \"%s\"\n", myfile);
 	printf("headerfile: \"%s\"\n", headerfile);
 	return EXIT_SUCCESS;
 }

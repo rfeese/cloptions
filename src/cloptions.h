@@ -61,6 +61,13 @@ int cloptions_check(int argc, char *argv[]); // check common and any additional 
 char *cloptions_get_error();
 
 /**
+ * Set the most recent error message. For use in callbacks that want to set an error.
+ *
+ * \return Error string.
+ */
+void cloptions_set_error(const char *msg);
+
+/**
  * Print a help/usage text based on the options configuration on STDOUT.
  *
  * \param argv0 The name of the executable

@@ -171,6 +171,10 @@ int cloptions_check(int argc, char *argv[]){
 					// call option callback
 					if(cloptions.options[j].callback){
 						if(!cloptions.options[j].callback(strargval, intargval, floatargval)){
+							if(!strnlen(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN)){
+								// no current error message, so make one
+								snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "While handling argument value \"%s\" for option: %s %s.", argv[i], cloptions.options[j].str, cloptions.options[j].argstr);
+							}
 							return 0;
 						}
 					}
@@ -213,6 +217,10 @@ int cloptions_check(int argc, char *argv[]){
 
 				if(cloptions.options[j].callback){
 					if(!cloptions.options[j].callback(strargval, intargval, floatargval)){
+						if(!strnlen(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN)){
+							// no current error message, so make one
+							snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "While handling argument: %s.", cloptions.options[j].argstr);
+						}
 						return 0;
 					}
 				}
@@ -227,6 +235,10 @@ int cloptions_check(int argc, char *argv[]){
 		return 0;
 	}
 	return 1;
+}
+
+void cloptions_set_error(const char *msg){
+	snprintf(cloptions.error_msg, CLOPTIONS_ERROR_MSG_LEN, "%s", msg);
 }
 
 char *cloptions_get_error(){

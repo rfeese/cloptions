@@ -85,6 +85,11 @@ void test_cloptions_get_error(){
 	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("", cloptions_get_error(), 1), "Should not be any error message.");
 }
 
+void test_cloptions_set_error(){
+	cloptions_set_error("test_set_error");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, strncmp("test_set_error", cloptions_get_error(), 15), "Error message should have been set.");
+}
+
 void test_cloptions_print_help(){
 	char *argv[] = { "test" };
 	cloptions_print_help(argv[0]);
@@ -102,6 +107,7 @@ int main(){
 	RUN_TEST(test_cloptions_add);
 	RUN_TEST(test_cloptions_check);
 	RUN_TEST(test_cloptions_get_error);
+	RUN_TEST(test_cloptions_set_error);
 	RUN_TEST(test_cloptions_print_help);
 	RUN_TEST(test_cloptions_generate_bash_completion);
 
