@@ -12,7 +12,7 @@
 
 struct s_cloption {
 	char str[CLOPTION_STR_MAX];       // --str
-	char argstr[CLOPTION_STR_MAX];  // --str [argstr]
+	char argstr[CLOPTION_STR_MAX];    // --str [argstr]
 	char helpstr[CLOPTION_HELP_STR_MAX];
 	cloption_callback callback;
 	char *arg_finder_str;
@@ -25,7 +25,7 @@ struct s_cloption {
 struct cloptions {
 	int num;
 	struct s_cloption options[CLOPTIONS_MAX];
-	char arg_finder[CLOPTIONS_MAX][CLOPTION_ARG_FINDER_STR_MAX];
+	char arg_finder[CLOPTIONS_MAX][CLOPTION_ARG_FINDER_STR_MAX]; // arg_finders may be shared by multiple options
 	char error_msg[CLOPTIONS_ERROR_MSG_LEN];
 };
 

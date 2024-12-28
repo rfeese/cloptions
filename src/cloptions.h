@@ -3,6 +3,7 @@
  */
 #ifndef CLOPTIONS_H
 #define CLOPTIONS_H
+
 /**
  * Prototype for an option callback.
  * Accepts values for different argument types, even though only one may actually be used.
@@ -20,7 +21,7 @@ typedef int (*cloption_callback)(char *strval, int intval, float floatval);
  * Option with argument:	("--myoption", "myoptarg", "Do myoption with arg.", myoption_callback)
  * Positional argument:		("", "myarg", "Use arg.", myarg_callback)
  *
- * \param str Option string (e.g. "--option", "-o")
+ * \param str Option string (e.g. "--option", "-o").
  * \param argstr Argument string: The name for a user-provided value.
  * \param help Help string.
  * \param callback Callback function pointer.
@@ -47,14 +48,14 @@ void cloptions_add_arg_finder(const char *str, const char *argstr, const char *f
  * Verify and process program arugments per the defined options.
  * As each option is checked, callback functions are called.
  *
- * \param argc Argument count from main()
- * \param argv Argument array from main()
+ * \param argc Argument count from main().
+ * \param argv Argument array from main().
  * \return 1 if user arguments are compliant.
  */
-int cloptions_check(int argc, char *argv[]); // check common and any additional command-line options
+int cloptions_check(int argc, char *argv[]);
 
 /**
- * Get message for the most recent error
+ * Get message for the most recent error.
  *
  * \return Error string.
  */
@@ -70,19 +71,19 @@ void cloptions_set_error(const char *msg);
 /**
  * Print a help/usage text based on the options configuration on STDOUT.
  *
- * \param argv0 The name of the executable
+ * \param argv0 The name of the executable.
  */
 void cloptions_print_help(char *argv0);
 
 /**
  * Print a bash completion script based on the defined options and finders on STDOUT.
  *
- * \param argv0 The name of the executable
+ * \param argv0 The name of the executable.
  */
 void cloptions_generate_bash_completion(char *argv0);
 
 /**
- * Reset options module
+ * Reset the options module.
  */ 
 void cloptions_reset();
 #endif //CLOPTIONS_H
