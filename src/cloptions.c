@@ -247,33 +247,65 @@ char *cloptions_get_error(){
 
 void cloptions_print_help(char *argv0){
 	//find longest option name
-	int optlength = 0;
+	int maxoptlength = 0;
 	for(int j = 0; j < cloptions.num; j++){
-		if((strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1)  > optlength){
-			optlength = strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1;
+		if((strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1)  > maxoptlength){
+			maxoptlength = strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) + strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) + 1;
 		}
 	}
 
+	// find longest argument name and prepare arguments string
+	int maxarglength = 0;
 	char unnamed_options_str[128] = {};
 	for(int j = 0; j < cloptions.num; j++){
 		if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) == 0){
+			if(strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX) > maxarglength){
+				maxarglength = strnlen(cloptions.options[j].argstr, CLOPTION_STR_MAX);
+			}
+
 			strncat(unnamed_options_str, " ", 128 - 1);
 			strncat(unnamed_options_str, cloptions.options[j].argstr, 128 - 1);
 		}
 	}
 	printf("\nUsage: %s [OPTIONS]%s\n\n", argv0, unnamed_options_str);
+
 	char helpline[128] = {};
+
+	// print help for args
+	if(strnlen(unnamed_options_str, 128) > 0){
+		printf("ARGUMENTS\n");
+		for(int j = 0; j < cloptions.num; j++){
+			if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) == 0){
+				snprintf(helpline, 128, "%s", cloptions.options[j].argstr);
+				int myarglength =  strnlen(helpline, 128);
+				// pad out to maxarglength so that help texts will align
+				for(int k = 0; k < maxarglength - myarglength; k++){
+					strncat(helpline, " ", 128 - 1);
+				}
+				printf("  %s\t%s\n", helpline, cloptions.options[j].helpstr);
+			}
+		}
+
+		printf("\n");
+	}
+
+	// print help for options
+	printf("OPTIONS\n");
+
+	//default help option
 	snprintf(helpline, 128, "%s", "-?, --help");
 	int myoptlength =  strnlen(helpline, 128);
-	for(int k = 0; k < optlength - myoptlength; k++){
+	for(int k = 0; k < maxoptlength - myoptlength; k++){
 		strncat(helpline, " ", 128 - 1);
 	}
+
 	printf("  %s\t%s\n", helpline, "Show this help.");
 	for(int j = 0; j < cloptions.num; j++){
 		if(strnlen(cloptions.options[j].str, CLOPTION_STR_MAX) > 0){
 			snprintf(helpline, 128, "%s %s", cloptions.options[j].str, cloptions.options[j].argstr);
 			int myoptlength =  strnlen(helpline, 128);
-			for(int k = 0; k < optlength - myoptlength; k++){
+			// pad out to maxaroptngth so that help texts will align
+			for(int k = 0; k < maxoptlength - myoptlength; k++){
 				strncat(helpline, " ", 128 - 1);
 			}
 			printf("  %s\t%s\n", helpline, cloptions.options[j].helpstr);

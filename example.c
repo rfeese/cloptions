@@ -64,16 +64,16 @@ int main(int argc, char* argv[]){
 	cloptions_add("--foo", "foovalue", "Foo value.", foo_callback);
 
 	// option with argument choices using custom finder
-	cloptions_add("--color", "( red | green | blue )", "color value.", color_callback);
-	cloptions_add_arg_finder("--color", "( red | green | blue )", "echo \"red green blue\"");
+	cloptions_add("--color", "( red | green | blue )", "Color value.", color_callback);
+	cloptions_add_arg_finder("--color", "( red | green | blue )", "echo \" red green blue \"");
 
 	// nameless positional argument using builtin _filedir finder
-	cloptions_add("", "[file]", "File to process.", myfile_callback);
-	cloptions_add_arg_finder("", "[file]", "_filedir");
+	cloptions_add("", "file", "File to process.", myfile_callback);
+	cloptions_add_arg_finder("", "file", "_filedir");
 
 	// nameless positional argument using custom finder
-	cloptions_add("", "[headerfile]", "Header file", headerfile_callback);
-	cloptions_add_arg_finder("", "[headerfile]", "find src/ -type f -name '*.h'");
+	cloptions_add("", "headerfile", "Header file.", headerfile_callback);
+	cloptions_add_arg_finder("", "headerfile", "find src/ -type f -name '*.h'");
 
 	if(!cloptions_check(argc, argv)){
 		printf("ERROR: %s\n", cloptions_get_error());
